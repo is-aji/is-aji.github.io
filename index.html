@@ -3,56 +3,162 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tombol Semangat</title>
+  <title>Game Semangat</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
-      margin: 20px;
+      margin: 0;
+      overflow: hidden;
+      background-color: #f4f4f4;
     }
     button {
       padding: 10px 20px;
       font-size: 16px;
-      margin: 10px;
       cursor: pointer;
-    }
-    #output {
       margin-top: 20px;
-      font-size: 20px;
     }
-    img {
-      margin-top: 10px;
-      width: 100px;
-      height: auto;
+    #gameCanvas {
+      display: none;
+      border: 1px solid #ccc;
+      background: #fff;
+    }
+    #hadiahButton {
+      display: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
   <h1>Semangat atau Menyerah?</h1>
   <button id="semangatButton">Semangat</button>
-  <button id="menyerahButton" style="position: relative;">Menyerah</button>
-  <div id="output"></div>
+  <canvas id="gameCanvas" width="800" height="200"></canvas>
+  <button id="hadiahButton">Dapatkan Hadiah</button>
+  <div id="output" style="margin-top: 20px; font-size: 20px;"></div>
 
   <script>
     const semangatButton = document.getElementById("semangatButton");
-    const menyerahButton = document.getElementById("menyerahButton");
+    const canvas = document.getElementById("gameCanvas");
+    const hadiahButton = document.getElementById("hadiahButton");
     const outputDiv = document.getElementById("output");
+    const ctx = canvas.getContext("2d");
 
-    // Fungsi untuk menampilkan pesan saat tombol semangat ditekan
+    let isJumping = false;
+    let jumpHeight = 0;
+    let gravity = 3;
+
+    let player = { x: 50, y: 150, width: 30, height: 30 };
+    let obstacle = { x: canvas.width, y: 150, width: 30, height: 30, speed: 5 };
+    let finishLine = { x: canvas.width + 1000, y: 150, width: 20, height: 150 };
+
+    const hadiahList = [
+      "Martabak",
+      "Liburan ke air panas",
+      "Liburan ke taman",
+      "Liburan ke pantai",
+      "Uang 1000",
+      "Uang 100000",
+    ];
+
+    function drawPlayer() {
+      ctx.fillStyle = "#3498db";
+      ctx.fillRect(player.x, player.y - jumpHeight, player.width, player.height);
+    }
+
+    function drawObstacle() {
+      ctx.fillStyle = "#e74c3c";
+      ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+    }
+
+    function drawFinishLine() {
+      ctx.fillStyle = "#2ecc71";
+      ctx.fillRect(finishLine.x, canvas.height - finishLine.height, finishLine.width, finishLine.height);
+    }
+
+    function detectCollision() {
+      const playerBottom = player.y - jumpHeight + player.height;
+      const playerRight = player.x + player.width;
+      const obstacleLeft = obstacle.x;
+      const obstacleTop = obstacle.y;
+
+      if (
+        playerBottom > obstacleTop &&
+        playerRight > obstacleLeft &&
+        player.x < obstacleLeft + obstacle.width
+      ) {
+        alert("Game Over! Semangat lagi ya!");
+        location.reload(); // Restart game
+      }
+    }
+
+    function checkFinish() {
+      if (player.x > finishLine.x) {
+        alert("Selamat! Kamu telah mencapai garis akhir.");
+        canvas.style.display = "none";
+        hadiahButton.style.display = "block";
+      }
+    }
+
+    function gameLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Update obstacle position
+      obstacle.x -= obstacle.speed;
+      if (obstacle.x + obstacle.width < 0) {
+        obstacle.x = canvas.width;
+      }
+
+      // Handle jumping
+      if (isJumping) {
+        jumpHeight += gravity;
+        if (jumpHeight > 100) isJumping = false;
+      } else if (jumpHeight > 0) {
+        jumpHeight -= gravity;
+      }
+
+      // Move player and finish line
+      player.x += 2;
+      finishLine.x -= 2;
+
+      drawPlayer();
+      drawObstacle();
+      drawFinishLine();
+      detectCollision();
+      checkFinish();
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Start the game
     semangatButton.addEventListener("click", () => {
-      outputDiv.innerHTML = `
-        <p>Nah gitu dong!</p>
-        <img src="https://i.imgur.com/2vEpXUK.png" alt="Senyum">
-      `;
+      semangatButton.style.display = "none";
+      canvas.style.display = "block";
+      gameLoop();
     });
 
-    // Fungsi untuk memindahkan tombol menyerah
-    menyerahButton.addEventListener("click", () => {
-      const randomX = Math.floor(Math.random() * (window.innerWidth - 100));
-      const randomY = Math.floor(Math.random() * (window.innerHeight - 100));
-      menyerahButton.style.position = "absolute";
-      menyerahButton.style.left = `${randomX}px`;
-      menyerahButton.style.top = `${randomY}px`;
+    // Handle jump with space bar or touch
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "Space" && jumpHeight === 0) {
+        isJumping = true;
+      }
+    });
+
+    document.addEventListener("touchstart", () => {
+      if (jumpHeight === 0) {
+        isJumping = true;
+      }
+    });
+
+    // Handle hadiah button click
+    hadiahButton.addEventListener("click", () => {
+      const hadiah = hadiahList[Math.floor(Math.random() * hadiahList.length)];
+      outputDiv.innerHTML = `Selamat! Kamu mendapatkan: <strong>${hadiah}</strong>`;
+      hadiahButton.style.display = "none";
     });
   </script>
 </body>
