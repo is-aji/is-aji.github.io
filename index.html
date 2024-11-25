@@ -67,11 +67,12 @@
 
     let isJumping = false;
     let jumpHeight = 0;
-    let gravity = 5;
-    let gameSpeed = 0.15; // Lebih lambat dibandingkan sebelumnya
+    let gravity = 3;
+    let gameSpeed = 0.5; // Kecepatan gerakan lebih lambat
+    let playerSpeed = 2; // Kecepatan pergerakan pemain lebih lambat
 
     let player = { x: 50, y: 150, width: 30, height: 30 };
-    let obstacle = { x: canvas.width, y: 150, width: 30, height: 30, speed: 1 }; // Kecepatan lebih lambat
+    let obstacle = { x: canvas.width, y: 150, width: 30, height: 30, speed: 2 }; // Kecepatan lebih lambat
     let finishLine = { x: canvas.width + 1500, y: 150, width: 20, height: 150 };
 
     const hadiahList = [
@@ -145,8 +146,12 @@
         jumpHeight -= gravity;
       }
 
-      // Move player and finish line
-      player.x += gameSpeed;
+      // Move player, but don't let him leave the screen
+      player.x += playerSpeed;
+      if (player.x > canvas.width - player.width) {
+        player.x = canvas.width - player.width;
+      }
+
       finishLine.x -= gameSpeed;
 
       drawPlayer();
