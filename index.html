@@ -17,11 +17,21 @@
       font-size: 16px;
       cursor: pointer;
       margin-top: 20px;
+      display: none;
     }
     #gameCanvas {
       display: none;
       border: 1px solid #ccc;
       background: #fff;
+    }
+    #cobaLagiButton {
+      display: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      cursor: pointer;
     }
     #hadiahButton {
       display: none;
@@ -38,12 +48,14 @@
   <h1>Semangat atau Menyerah?</h1>
   <button id="semangatButton">Semangat</button>
   <canvas id="gameCanvas" width="800" height="200"></canvas>
+  <button id="cobaLagiButton">Coba Lagi</button>
   <button id="hadiahButton">Dapatkan Hadiah</button>
   <div id="output" style="margin-top: 20px; font-size: 20px;"></div>
 
   <script>
     const semangatButton = document.getElementById("semangatButton");
     const canvas = document.getElementById("gameCanvas");
+    const cobaLagiButton = document.getElementById("cobaLagiButton");
     const hadiahButton = document.getElementById("hadiahButton");
     const outputDiv = document.getElementById("output");
     const ctx = canvas.getContext("2d");
@@ -51,10 +63,11 @@
     let isJumping = false;
     let jumpHeight = 0;
     let gravity = 3;
+    let gameSpeed = 1; // Lebih lambat dibandingkan sebelumnya
 
     let player = { x: 50, y: 150, width: 30, height: 30 };
-    let obstacle = { x: canvas.width, y: 150, width: 30, height: 30, speed: 5 };
-    let finishLine = { x: canvas.width + 1000, y: 150, width: 20, height: 150 };
+    let obstacle = { x: canvas.width, y: 150, width: 30, height: 30, speed: 2 }; // Kecepatan lebih lambat
+    let finishLine = { x: canvas.width + 1500, y: 150, width: 20, height: 150 };
 
     const hadiahList = [
       "Martabak",
@@ -91,8 +104,7 @@
         playerRight > obstacleLeft &&
         player.x < obstacleLeft + obstacle.width
       ) {
-        alert("Game Over! Semangat lagi ya!");
-        location.reload(); // Restart game
+        gameOver();
       }
     }
 
@@ -104,11 +116,18 @@
       }
     }
 
+    function gameOver() {
+      cancelAnimationFrame(gameLoopId);
+      canvas.style.display = "none";
+      cobaLagiButton.style.display = "block";
+    }
+
+    let gameLoopId;
     function gameLoop() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Update obstacle position
-      obstacle.x -= obstacle.speed;
+      obstacle.x -= obstacle.speed * gameSpeed;
       if (obstacle.x + obstacle.width < 0) {
         obstacle.x = canvas.width;
       }
@@ -122,8 +141,8 @@
       }
 
       // Move player and finish line
-      player.x += 2;
-      finishLine.x -= 2;
+      player.x += gameSpeed;
+      finishLine.x -= gameSpeed;
 
       drawPlayer();
       drawObstacle();
@@ -131,7 +150,7 @@
       detectCollision();
       checkFinish();
 
-      requestAnimationFrame(gameLoop);
+      gameLoopId = requestAnimationFrame(gameLoop);
     }
 
     // Start the game
@@ -154,7 +173,12 @@
       }
     });
 
-    // Handle hadiah button click
+    // Handle "Coba Lagi" button
+    cobaLagiButton.addEventListener("click", () => {
+      location.reload(); // Restart the game
+    });
+
+    // Handle "Dapatkan Hadiah" button
     hadiahButton.addEventListener("click", () => {
       const hadiah = hadiahList[Math.floor(Math.random() * hadiahList.length)];
       outputDiv.innerHTML = `Selamat! Kamu mendapatkan: <strong>${hadiah}</strong>`;
