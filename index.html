@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tombol Semangat</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 10px;
+      cursor: pointer;
+    }
+    #output {
+      margin-top: 20px;
+      font-size: 20px;
+    }
+    img {
+      margin-top: 10px;
+      width: 100px;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Semangat atau Menyerah?</h1>
+  <button id="semangatButton">Semangat</button>
+  <button id="menyerahButton" style="position: relative;">Menyerah</button>
+  <div id="output"></div>
+
+  <script>
+    const semangatButton = document.getElementById("semangatButton");
+    const menyerahButton = document.getElementById("menyerahButton");
+    const outputDiv = document.getElementById("output");
+
+    // Fungsi untuk menampilkan pesan saat tombol semangat ditekan
+    semangatButton.addEventListener("click", () => {
+      outputDiv.innerHTML = `
+        <p>Nah gitu dong!</p>
+        <img src="https://i.imgur.com/2vEpXUK.png" alt="Senyum">
+      `;
+    });
+
+    // Fungsi untuk memindahkan tombol menyerah
+    menyerahButton.addEventListener("click", () => {
+      const randomX = Math.floor(Math.random() * (window.innerWidth - 100));
+      const randomY = Math.floor(Math.random() * (window.innerHeight - 100));
+      menyerahButton.style.position = "absolute";
+      menyerahButton.style.left = `${randomX}px`;
+      menyerahButton.style.top = `${randomY}px`;
+    });
+  </script>
+</body>
+</html>
